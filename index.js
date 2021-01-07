@@ -1,1 +1,2 @@
-cosnt Alexa = 
+const Alexa = require('ask-sdk-core');
+

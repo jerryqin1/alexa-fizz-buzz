@@ -1,0 +1,13 @@
+{
+  "name": "FizzBuzz",
+  "version": "1.0.0",
+  "description": "Alexa Fizz Buzz Skill",
+  "main": "index.js",
+  "dependencies": {
+    "ask-sdk-core": "^2.0.0",
+    "ask-sdk-model": "^1.0.0"
+  },
+  "devDependencies": {},
+  "author": "Jerry Qin",
+  "license": "SEE LICENSE IN license.md"
+}

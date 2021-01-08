@@ -32,7 +32,7 @@ const LaunchRequest = {
     attributesManager.setSessionAttributes(attributes);
 
     const gamesPlayed = attributes.gamesPlayed.toString()
-    const speechOutput = requestAttributes.t('LAUNCH_MESSAGE', gamesPlayed);
+    const speechOutput = requestAttributes.t('LAUNCH_MESSAGE');
     const reprompt = requestAttributes.t('CONTINUE_MESSAGE');
 
     return handlerInput.responseBuilder
@@ -44,7 +44,7 @@ const LaunchRequest = {
 
 
 /**
- * ExitHandler - gracefully exits game and displays exit maessage from languageStrings.js
+ * ExitHandler - gracefully exits game and displays exit message
  * @return - 
  */
 const ExitHandler = {
@@ -123,8 +123,6 @@ const YesIntent = {
     const sessionAttributes = attributesManager.getSessionAttributes();
 
     sessionAttributes.gameState = 'STARTED';
-
-    //sessionAttributes.guessNumber = Math.floor(Math.random() * 101);
     sessionAttributes.alexaNum = 1;
     sessionAttributes.nextUserNum = 2;
 
@@ -171,7 +169,7 @@ const NoIntent = {
 
     return handlerInput.responseBuilder
       .speak(requestAttributes.t('EXIT_MESSAGE'))
-      .getResponse();
+      .getResponse(); 
 
   },
 };
@@ -202,9 +200,9 @@ const UnhandledIntent = {
  * @return - approriate game response to a number (string or number)
  */
 function fizzbuzz(num){
-  if(num % 15 == 0) return "fizz buzz";
-  if(num % 3 == 0) return "fizz";
-  return num % 5 == 0 ? "buzz" : num;
+  if(num % 15 === 0) return "fizz buzz";
+  if(num % 3 === 0) return "fizz";
+  return num % 5 === 0 ? "buzz" : num;
 }
 
 
@@ -237,58 +235,30 @@ const GuessIntent = {
     const target = fizzbuzz(sessionAttributes.nextNum);
     var userNum = parseInt(Alexa.getSlotValue(handlerInput.requestEnvelope, 'number'), 10);
     var userFizzBuzz = Alexa.getSlotValue(handlerInput.requestEnvelope, 'FizzOrBuzz');
-    var isNum = typeof target == "number";
+    var isNum = typeof target === "number";
 
     if ((isNum && userNum === target) || (!isNum && userFizzBuzz === target)){
       let alexaNum = fizzbuzz(sessionAttributes.nextUserNum + 1);
       sessionAttributes.alexaNum = alexaNum.toString();
       sessionAttributes.nextUserNum += 2;
       return handlerInput.responseBuilder
-      .speak(requestAttributes.t('NEXT_MESSAGE', alexaNum.toString())
-      .reprompt(requestAttributes.t('NEXT_REPROMPT_MESSAGE', nextNumberForAlexa.toString()))
+      .speak(requestAttributes.t('NEXT_MESSAGE', alexaNum.toString()))
+      .reprompt(requestAttributes.t('NEXT_REPROMPT_MESSAGE'))
+      .getResponse();
     } else if ((isNum && userNum !== target) || (!isNum && userFizzBuzz !== target)) {
-      sessionAttribute.gamestate = 'ENDED';
+      sessionAttributes.gamestate = 'ENDED';
       attributesManager.setPersistentAttributes(sessionAttributes);
       await attributesManager.savePersistentAttributes();
       return handlerInput.responseBuilder
-      .speak(requestAttributes.t('LOST_MESSAGE', (userFizzBuzz ? userFizzBuzz : userNum.toString()), target.toString())
+      .speak(requestAttributes.t('LOST_MESSAGE', (userFizzBuzz ? userFizzBuzz : userNum.toString()), target.toString()))
       .reprompt(requestAttributes.t('CONTINUE_MESSAGE'))
       .getResponse();
-    } else {
-      return handlerInput.responseBuilder
-      .speak(requestAttributes.t('FALLBACK_MESSAGE_DURING_GAME'))
-      .reprompt(requestAttributes.t('FALLBACK_REPROMPT_DURING_GAME'))
-      .getResponse()
     }
-
-    // the following is game logic from low/high which will be removed
-
-    /* if (guessNum > targetNum) {
-      return handlerInput.responseBuilder
-        .speak(requestAttributes.t('TOO_HIGH_MESSAGE', guessNum.toString()))
-        .reprompt(requestAttributes.t('TOO_HIGH_REPROMPT'))
-        .getResponse();
-    } else if (guessNum < targetNum) {
-      return handlerInput.responseBuilder
-        .speak(requestAttributes.t('TOO_LOW_MESSAGE', guessNum.toString()))
-        .reprompt(requestAttributes.t('TOO_LOW_REPROMPT'))
-        .getResponse();
-    } else if (guessNum === targetNum) {
-      sessionAttributes.gamesPlayed += 1;
-      sessionAttributes.gameState = 'ENDED';
-      attributesManager.setPersistentAttributes(sessionAttributes);
-      await attributesManager.savePersistentAttributes();
-      return handlerInput.responseBuilder
-        .speak(requestAttributes.t('GUESS_CORRECT_MESSAGE', guessNum.toString()))
-        .reprompt(requestAttributes.t('CONTINUE_MESSAGE'))
-        .getResponse();
-    }
+    
     return handlerInput.responseBuilder
-      .speak(requestAttributes.t('FALLBACK_MESSAGE_DURING_GAME'))
-      .reprompt(requestAttributes.t('FALLBACK_REPROMPT_DURING_GAME'))
-      .getResponse();*/ 
-
-   
+    .speak(requestAttributes.t('FALLBACK_MESSAGE_DURING_GAME'))
+    .reprompt(requestAttributes.t('FALLBACK_REPROMPT_DURING_GAME'))
+    .getResponse();
   },
 };
 

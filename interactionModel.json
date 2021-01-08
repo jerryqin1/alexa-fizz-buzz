@@ -1,7 +1,7 @@
 {
     "interactionModel": {
         "languageModel": {
-            "invocationName": "fizz buzz",
+            "invocationName": "fizz buzz interactive",
             "intents": [
                 {
                     "name": "AMAZON.CancelIntent",
@@ -92,6 +92,6 @@
                     ]
                 }
             ]
-        }
+        },
     }
 }

@@ -115,7 +115,7 @@ const YesIntent = {
       isCurrentlyPlaying = true;
     }
 
-    return isCurrentlyPlaying 
+    return !isCurrentlyPlaying 
       && Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' 
       && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.YesIntent';
   },
@@ -154,7 +154,7 @@ const NoIntent = {
       isCurrentlyPlaying = true;
     }
 
-    return isCurrentlyPlaying 
+    return !isCurrentlyPlaying 
       && Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' 
       && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NoIntent';
   },

@@ -1,13 +1,33 @@
 {
-  "name": "FizzBuzz",
+  "name": "alexa-fizz-buzz-game",
   "version": "1.0.0",
-  "description": "Alexa Fizz Buzz Skill",
+  "description": "Fizz Buzz game for Amazon Alexa",
   "main": "index.js",
-  "dependencies": {
-    "ask-sdk-core": "^2.0.0",
-    "ask-sdk-model": "^1.0.0"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jerryqin1/alexa-fizz-buzz.git"
+  },
+  "keywords": [
+    "Alexa",
+    "game",
+    "skill",
+    "fizz buzz"
+  ],
   "author": "Jerry Qin",
-  "license": "SEE LICENSE IN license.md"
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/jerryqin1/alexa-fizz-buzz/issues"
+  },
+  "homepage": "https://github.com/jerryqin1/alexa-fizz-buzz/blob/main/README.md",
+  "dependencies": {
+    "ask-sdk": "^2.6.0",
+    "aws-sdk": "2.637.0",
+    "ask-sdk-s3-persistence-adapter": "^2.6.0",
+    "ask-sdk-dynamodb-persistence-adapter": "^2.9.0",
+    "i18next": "^10.5.0",
+    "i18next-sprintf-postprocessor": "^0.2.2"
+  }
 }

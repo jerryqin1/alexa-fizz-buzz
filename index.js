@@ -6,6 +6,11 @@ const languageStrings = {
 }
 const AWS = require('aws-sdk');
 
+
+/**
+ * LaunchRequest - game launcher, initializes attributes/variables that maintain gamestate
+ * @return - 
+ */
 const LaunchRequest = {
   canHandle(handlerInput) {
     // launch requests as well as any new session, as games are not saved in progress, which makes
@@ -37,6 +42,11 @@ const LaunchRequest = {
   },
 };
 
+
+/**
+ * ExitHandler - gracefully exits game and displays exit maessage from languageStrings.js
+ * @return - 
+ */
 const ExitHandler = {
   canHandle(handlerInput) {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -52,6 +62,10 @@ const ExitHandler = {
   },
 };
 
+/**
+ * SessionEndRequest - handles user request to exit during game session
+ * @return - string (reason for why session is being ended)
+ */
 const SessionEndedRequest = {
   canHandle(handlerInput) {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
@@ -62,6 +76,11 @@ const SessionEndedRequest = {
   },
 };
 
+
+/**
+ * HelpIntent - handles HelpIntent request
+ * @return - responseBuilder object to output help message
+ */
 const HelpIntent = {
   canHandle(handlerInput) {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' 
@@ -77,6 +96,11 @@ const HelpIntent = {
   },
 };
 
+
+/**
+ * YesIntent - handles YesIntent request and starts instance of fizz buzz game
+ * @return - responseBuilder object to bein the games
+ */
 const YesIntent = {
   canHandle(handlerInput) {
     // only start a new game if yes is said when not playing a game.
@@ -99,7 +123,11 @@ const YesIntent = {
     const sessionAttributes = attributesManager.getSessionAttributes();
 
     sessionAttributes.gameState = 'STARTED';
-    sessionAttributes.guessNumber = Math.floor(Math.random() * 101);
+
+    //sessionAttributes.guessNumber = Math.floor(Math.random() * 101);
+    sessionAttributes.alexaNum = 1;
+    sessionAttributes.nextUserNum = 2;
+
 
     return handlerInput.responseBuilder
       .speak(requestAttributes.t('YES_MESSAGE'))
@@ -108,6 +136,12 @@ const YesIntent = {
   },
 };
 
+
+/**
+ * NoIntent - handles NoIntent request fom user and exits the game, this should not be used while
+ *            game is in session
+ * @return - responseBuilder object to exit game gracefully
+ */
 const NoIntent = {
   canHandle(handlerInput) {
     // only treat no as an exit when outside a game
@@ -142,6 +176,12 @@ const NoIntent = {
   },
 };
 
+
+/**
+ * NoIntent - handles NoIntent request fom user and exits the game, this should not be used while 
+ *            game is in session
+ * @return - responseBuilder object to exit game gracefully
+ */
 const UnhandledIntent = {
   canHandle() {
     return true;
@@ -156,7 +196,23 @@ const UnhandledIntent = {
   },
 };
 
-const NumberGuessIntent = {
+
+/**
+ * fizzbuzz - free function to determine correct response given a number
+ * @return - approriate game response to a number (string or number)
+ */
+function fizzbuzz(num){
+  if(num % 15 == 0) return "fizz buzz";
+  if(num % 3 == 0) return "fizz";
+  return num % 5 == 0 ? "buzz" : num;
+}
+
+
+/**
+ * GuessIntent - alexa processes user fizzbuzz guess
+ * @return - responseBuilder object that advances the gfame, prompts user for new input, or ends game
+ */
+const GuessIntent = {
   canHandle(handlerInput) {
     // handle numbers only during a game
     let isCurrentlyPlaying = false;
@@ -170,17 +226,44 @@ const NumberGuessIntent = {
 
     return isCurrentlyPlaying 
       && Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' 
-      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'NumberGuessIntent';
+      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GuessIntent';
   },
   async handle(handlerInput) {
     const { attributesManager } = handlerInput;
     const requestAttributes = attributesManager.getRequestAttributes();
     const sessionAttributes = attributesManager.getSessionAttributes();
 
-    const guessNum = parseInt(Alexa.getSlotValue(handlerInput.requestEnvelope, 'number'), 10);
-    const targetNum = sessionAttributes.guessNumber;
-    
-    if (guessNum > targetNum) {
+    // initialize values for user's guess and true target response for 
+    const target = fizzbuzz(sessionAttributes.nextNum);
+    var userNum = parseInt(Alexa.getSlotValue(handlerInput.requestEnvelope, 'number'), 10);
+    var userFizzBuzz = Alexa.getSlotValue(handlerInput.requestEnvelope, 'FizzOrBuzz');
+    var isNum = typeof target == "number";
+
+    if ((isNum && userNum === target) || (!isNum && userFizzBuzz === target)){
+      let alexaNum = fizzbuzz(sessionAttributes.nextUserNum + 1);
+      sessionAttributes.alexaNum = alexaNum.toString();
+      sessionAttributes.nextUserNum += 2;
+      return handlerInput.responseBuilder
+      .speak(requestAttributes.t('NEXT_MESSAGE', alexaNum.toString())
+      .reprompt(requestAttributes.t('NEXT_REPROMPT_MESSAGE', nextNumberForAlexa.toString()))
+    } else if ((isNum && userNum !== target) || (!isNum && userFizzBuzz !== target)) {
+      sessionAttribute.gamestate = 'ENDED';
+      attributesManager.setPersistentAttributes(sessionAttributes);
+      await attributesManager.savePersistentAttributes();
+      return handlerInput.responseBuilder
+      .speak(requestAttributes.t('LOST_MESSAGE', (userFizzBuzz ? userFizzBuzz : userNum.toString()), target.toString())
+      .reprompt(requestAttributes.t('CONTINUE_MESSAGE'))
+      .getResponse();
+    } else {
+      return handlerInput.responseBuilder
+      .speak(requestAttributes.t('FALLBACK_MESSAGE_DURING_GAME'))
+      .reprompt(requestAttributes.t('FALLBACK_REPROMPT_DURING_GAME'))
+      .getResponse()
+    }
+
+    // the following is game logic from low/high which will be removed
+
+    /* if (guessNum > targetNum) {
       return handlerInput.responseBuilder
         .speak(requestAttributes.t('TOO_HIGH_MESSAGE', guessNum.toString()))
         .reprompt(requestAttributes.t('TOO_HIGH_REPROMPT'))
@@ -203,10 +286,17 @@ const NumberGuessIntent = {
     return handlerInput.responseBuilder
       .speak(requestAttributes.t('FALLBACK_MESSAGE_DURING_GAME'))
       .reprompt(requestAttributes.t('FALLBACK_REPROMPT_DURING_GAME'))
-      .getResponse();
+      .getResponse();*/ 
+
+   
   },
 };
 
+
+/**
+ * ErrorHandler - handles errors within the game 
+ * @return - responseBuilder object to report the error message and get response from user
+ */
 const ErrorHandler = {
   canHandle() {
     return true;
@@ -223,6 +313,11 @@ const ErrorHandler = {
   },
 };
 
+
+/**
+ * FallBackHandler - handles miscellaneous intents and prompts the user for a response
+ * @return - responseBuilder object to get use response
+ */
 const FallbackHandler = {
   canHandle(handlerInput) {
     // handle fallback intent, yes and no when playing a game
@@ -253,6 +348,11 @@ const FallbackHandler = {
   },
 };
 
+
+
+// the following code sets up and registers response interceptors, uses request interceptors in 
+// order to request alexa user's locale and saves attributes to database, and 
+
 const LocalizationInterceptor = {
   process(handlerInput) {
     const localizationClient = i18n.use(sprintf).init({
@@ -282,6 +382,8 @@ const LocalizationInterceptor = {
   },
 };
 
+
+
 function getPersistenceAdapter() {
   // Determines persistence adapter to be used based on environment
   const dynamoDBAdapter = require('ask-sdk-dynamodb-persistence-adapter');
@@ -291,6 +393,7 @@ function getPersistenceAdapter() {
     dynamoDBClient: new AWS.DynamoDB({apiVersion: 'latest', region: process.env.DYNAMODB_PERSISTENCE_REGION})
   });
 }
+
 
 const skillBuilder = Alexa.SkillBuilders.custom();
 
@@ -303,7 +406,7 @@ exports.handler = skillBuilder
     HelpIntent,
     YesIntent,
     NoIntent,
-    NumberGuessIntent,
+    GuessIntent,
     FallbackHandler,
     UnhandledIntent,
   )

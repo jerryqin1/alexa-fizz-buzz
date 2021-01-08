@@ -2,7 +2,7 @@ module.exports = {
   translation: {
     SKILL_NAME: 'Fizz Buzz',
     EXIT_MESSAGE: 'Thanks for playing!',
-    FALLBACK_MESSAGE_DURING_GAME: `I don't understand what you said. I just said %s. Try saying the next number, fizz, buzz, or fizz buzz.`,
+    FALLBACK_MESSAGE_DURING_GAME: `I don't understand what you said. Try saying the next number, fizz, buzz, or fizz buzz.`,
     FALLBACK_REPROMPT_DURING_GAME: `Try saying a number, fizz, buzz, or fizz buzz`,
     FALLBACK_MESSAGE_OUTSIDE_GAME: `Would you like to play Fizz Buzz? Please say help to get the rules of the game`,
     NEXT_MESSAGE: '%s.',

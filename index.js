@@ -115,7 +115,7 @@ const YesIntent = {
       isCurrentlyPlaying = true;
     }
 
-    return !isCurrentlyPlaying 
+    return isCurrentlyPlaying 
       && Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' 
       && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.YesIntent';
   },
@@ -154,7 +154,7 @@ const NoIntent = {
       isCurrentlyPlaying = true;
     }
 
-    return !isCurrentlyPlaying 
+    return isCurrentlyPlaying 
       && Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' 
       && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NoIntent';
   },
@@ -258,8 +258,8 @@ const GuessIntent = {
     }
 
     return handlerInput.responseBuilder
-    .speak(requestAttributes.t('FALLBACK_MESSAGE_DURING_GAME', sessionAttributes.alexaNum))
-    .reprompt(requestAttributes.t('FALLBACK_REPROMPT_DURING_GAME', sessionAttributes.alexaNum))
+    .speak(requestAttributes.t('FALLBACK_MESSAGE_DURING_GAME'))
+    .reprompt(requestAttributes.t('FALLBACK_REPROMPT_DURING_GAME'))
     .getResponse();
   },
 };
